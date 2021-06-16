@@ -1,0 +1,354 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+
+<link href="labs.css" type="text/css" rel="stylesheet">
+<script type="text/javascript" src="prettify.js"></script>
+</head><body onload="prettyPrint()">
+<h3>6.02 Lab #10: Huffman Coding</h3>
+
+<p><b>Deadlines</b>
+
+</p><ul>
+On-line problem set due date: Monday night, 5/3/10<br>
+Tasks and lab questions due date: Wednesday night, 5/5/10<br>
+Checkoff deadline: Sunday, 5/9/10<br>
+</ul>
+
+<h4>Useful links</h4>
+
+<ul>
+<a href="https://scripts.mit.edu:444/~6.02/currentsemester/xtutor.cgi/L10_pset.xdoc">Lab 10 on-line problem set</a><br>
+<a href="https://scripts.mit.edu:444/~6.02/currentsemester/xtutor.cgi/L10_lab_questions.xdoc">Lab 10 on-line lab questions</a><br>
+
+<p>
+<a href="lab10.py">lab10.py</a> -- support and check-in code<br>
+<a href="lab10_1.py">lab10_1.py</a> -- task #1 template<br>
+<a href="lab10_2.py">lab10_2.py</a> -- task #2 template<br>
+<a href="lab10_3.py">lab10_3.py</a> -- task #3 template<br>
+<a href="lab10_fax_image.png">lab10_fax_image.png</a> -- image file for task #3<br>
+
+<p>
+<a href="lab10.zip">lab10.zip</a> -- compressed archive of all these files<br>
+</ul>
+
+<h4>Instructions</h4>
+
+See Lab #1 for a longer narrative about lab mechanics. The one-sentence
+version:
+
+<p>Complete the tasks below, submit your task files on-line before the
+  deadline, and sign-up for your check-off interview with your TA.
+
+<p>As always, help is available in 32-083 (see the Lab Hours web 
+page).
+
+<p><font color="red">Please be prepared to run your Lab 10 code 
+during
+checkoff.</font>
+
+<p><b>Goal</b>
+
+<p>Construct Huffman codes given symbol probabilities and experiment
+with various encodings of images to minimize the length of fax-style
+transmissions.
+
+<p><hr><p>
+
+<p><b>Task 1: Creating Huffman codes (1 point)</b>
+
+<p>The process of creating a variable-length code starts with a list
+of message symbols and their probabilities of occurrence.  As described
+in section 22.3 of the lecture notes, our goal is to encode more probable
+symbols with shorter binary sequences, and less probable symbols with
+longer binary sequences.  The Huffman algorithm builds the binary tree
+representing the variable-length code from the bottom up, starting with
+the least probable symbols.
+
+<p>Please write a Python function to build a Huffman code from a list
+of probabilities and symbols:
+
+<dl>
+<dt><tt>(<i>encoding_dictionary,tree</i>) = huffman(<i>plist</i>)</tt></dt>
+<dd>
+Given <tt>plist</tt>, a sequence of tuples <tt>(prob,symbol)</tt>, use
+the Huffman algorithm to build the binary tree representing an optimal
+variable-length code for messages consisting of the listed symbols.  Use
+instances of the <tt>Tree</tt> class to represent leaves and interior nodes of
+the tree.
+
+<p>After the tree has been constructed, perform a recursive walk of the
+tree to build an encoding dictionary that maps symbols to their corresponding
+Huffman code.
+
+<p>Return a tuple containing the encoding dictionary and a <tt>Tree</tt> instance
+representing the root of the binary tree.
+</dd>
+</dl>
+
+<p>Python's <tt>heapq</tt> module can be especially helpful when one has to
+repeatedly select the smallest element of a list.  A heap queue is just a list
+whose elements are organized so that removing the minimimum element or
+adding a new element always take log(n) time where n is the length of the list.
+
+<ul>
+<tt>heapq.heapify(<i>list</i>)</tt> can be called to reorganize the
+elements of <tt>list</tt> so that they form a heap queue.  Just the
+order of the elements is changed, the list is still a list after the
+call to <tt>heapify</tt>.
+
+<p><tt>heapq.heappop(<i>list</i>)</tt> removes the minimum element from
+<tt>list</tt> and returns it.
+
+<p><tt>heapq.heappush(<i>list</i>,<i>item</i>)</tt> adds <tt>item</tt> to the
+<tt>list</tt>.
+</ul>
+
+<p>The heap queue operations use the "&lt;" operator to compare list
+elements, so we've defined how "&lt;" works on <tt>Tree</tt> instances
+by adding a <tt>__lt__</tt> method to the <tt>Tree</tt> class.
+
+<p><A href="lab10_1.py">lab10_1.py</A> is the template file for this task:
+
+<p><pre class="prettyprint lang-py"><!--#include file="lab10_1.py" --></pre>
+
+<p>The template includes code for the <tt>Tree</tt> class and a start at the <tt>huffman</tt>
+function.  You should complete the definition of the function by repeatedly
+processing the list of <tt>Tree</tt> instances, <tt>tlist</tt>, until <tt>tlist</tt>
+contains only a single instance -- the root of the Huffman tree.  On each pass,
+remove the two <tt>Tree</tt> instances that have the smallest probability, construct
+a new <tt>Tree</tt> instance representing an interior node of the tree with the
+two instances as its children, computing the appropriate probability for the interior
+node, and add this new instance back into <tt>tlist</tt>.
+
+<p>The Python module <tt>heapq</tt> implements a priority queue data structure
+that is particularly efficient at letting you select the minimum element of the
+list.  Read about it in the Python documentation -- it'll make it very easy to
+write the <tt>huffman</tt> function.
+
+<p>The testing code in the template runs your code through several test cases.
+You should see something like the following printout (your encodings may be
+slightly different, although the length of the encoding for each of the symbols
+should match that shown below):
+
+<ul><pre>
+Huffman encoding:
+   B = 00
+   D = 01
+   A = 10
+   C = 11
+  Expected length of encoding a choice = 2.00 bits
+  Information content in a choice = 2.00 bits
+Huffman encoding:
+   A = 00
+   D = 010
+   C = 011
+   B = 1
+  Expected length of encoding a choice = 1.66 bits
+  Information content in a choice = 1.61 bits
+Huffman encoding:
+   II = 000
+   I = 0010
+   III = 0011
+   X = 010
+   XVI = 011
+   VI = 1
+  Expected length of encoding a choice = 2.38 bits
+  Information content in a choice = 2.30 bits
+Huffman encoding:
+   HHH = 0
+   HHT = 100
+   HTH = 101
+   THH = 110
+   HTT = 11100
+   THT = 11101
+   TTH = 11110
+   TTT = 11111
+  Expected length of encoding a choice = 1.60 bits
+  Information content in a choice = 1.41 bits
+</pre></ul>
+
+When you're ready to submit your code on-line, enable the call to <tt>lab10.checkoff</tt>.
+
+<p><hr><p>
+
+<p><b>Task 2: Decoding Huffman-encoded messages (1 point)</b>
+
+<p>Encoding a message is a one-liner using the encoding dictionary returned
+by the <tt>huffman</tt> routine -- just use the dictionary to map each symbol
+in the message to its binary encoding and then concatenate the individual
+encodings to get the encoded message:
+
+<p><pre class="prettyprint lang-py">def encode(encoding_dict,message):
+    return numpy.concatenate([encoding_dict[obj]
+                              for obj in message])
+</pre>
+
+Decoding uses the Huffman tree, also returned by the <tt>huffman</tt> routine:
+use the bits from the encoded message to guide a traversal of the tree starting
+at the root, consuming one bit each time a branch decision is required.  When
+the traversal reaches a leaf of the tree, that's the next decoded message symbol.
+This process is repeated until all the encoded message bits have been consumed.
+
+<p>Please write a Python function to decode an encoded message using the 
+supplied Huffman tree:
+
+<dl>
+<dt><tt><i>decoded_message</i> = decode(<i>huffman_tree,encoded_message</i>)</tt></dt>
+<dd>
+<tt>encoded_message</tt> is a numpy arrary of binary values, as returned by the
+<tt>encode</tt> function shown above.  <tt>huffman_tree</tt> is a <tt>Tree</tt>
+instance representing the root of the binary Huffman tree.  For non-leaf nodes
+in the tree, the instance slots <tt>left</tt> and <tt>right</tt>
+access the two descendents of the node.
+
+<p>The <tt>isLeaf()</tt> method can be called to determine if a <tt>Tree</tt> instance represents a leaf
+of the Huffman tree, in which case the <tt>left</tt> instance slot holds the
+value of the leaf symbol.
+
+<p>Return the sequence of symbols representing the decoded message.
+</dd>
+</dl>
+
+<p><A href="lab10_2.py">lab10_2.py</A> is the template file for this task:
+
+<p><pre class="prettyprint lang-py"><!--#include file="lab10_2.py" --></pre>
+
+When you're ready to submit your code on-line, enable the call to <tt>lab10.checkoff</tt>.
+
+<p><hr><p>
+
+<p><b>Task 3: Huffman codes in use: fax transmissions (4 points)</b>
+
+<p>A fax machine scans the page to be transmitted, producing row after
+row of pixels.  Here's what our test text image looks like:
+
+<p><center><img src="lab10_fax_image.png" border="1"></center>
+
+<p>Instead of sending 1 bit per pixel, we can do a lot better if we
+think about transmitting the image in chunks, observing that in each
+chunk we have alternating runs of white and black pixels.  What's your
+sense of the distribution of run lengths, for example when we arrange
+the pixels in one long linear array?  Does it differ between white and
+black runs?
+
+<p>Perhaps we can compress the image by using <i>run-length encoding</i>
+where we send the lengths of the alternating white and black runs instead
+of sending the pixel pattern directly. For example, consider the
+following representation of a 4x7 bit image (1=white, 0=black):
+<center><pre>
+1 1 0 0 1 1 1
+1 1 1 0 0 1 1
+1 1 1 1 0 0 1
+1 1 1 1 1 1 1
+</pre></center>
+which can be represented as a sequence of run lengths: [2,2,6,2,6,2,8].
+If the receiver knows that runs alternate between white and black (with
+the first run being white) and that the width of the image is 7, it can
+easily reconstruct the original bit pattern.
+
+<p>It's not clear that it would take fewer bits to transmit the
+run lengths than to transmit the original image pixel-by-pixel -- that'll
+depend on how clever we are when we encode the lengths!  If all run
+lengths are equally probable then a fixed-length encoding for the
+lengths (e.g., using 8 bits to transmit lengths between 0 and 255) is
+the best we can do. But if some run length values are more probable
+than others, we can use a variable-length Huffman code to send the
+sequence of run lengths using fewer bits than can be achieved with a
+fixed-length code.
+
+<p><A href="lab10_3.py">lab10_3.py</A> runs several encoding experiments,
+trying different approaches to using Huffman encoding to get the 
+greatest amount of compression.  As is often the case with developing
+a compression scheme, one needs to experiment in order to gain the
+necessary insights about the most compressible representation of the
+message (in this case the text image).
+
+<p>Please run lab10_3.py, look at the output it generates and then tackle the
+associated lab questions.
+
+<p>Here are the alternative encodings we'll explore:
+
+<dl>
+
+<dt><b>Baseline 0 -- Transmit the b/w pixels as individual bits</b></dt>
+<dd>
+The raw image contains 250,000 black/white pixels (0 = black, 1 =
+white).  We could obviously transmit the image using 250,000 bits, so
+this is the baseline against which we can measure the performance of
+all other encodings.
+</dd>
+
+<p><dt><b>Baseline 1 -- Encode run lengths with fixed-length code</b></dt>
+<dd>
+To explore run-length encoding, we've represented the image
+as a sequence of alternating white and black runs, with
+a maximum run size of 255.  If a particular run is longer
+than 255, the conversion process outputs a run of length 255,
+followed by a run of length 0 of the opposite color, and then
+works on encoding the remainder of the run.  Since each
+run length can be encoded in 8 bits, the total size of
+the fixed-length encoding is 8 times the number of runs.
+</dd>
+
+<p><dt><b>Baseline 2 -- Lempel-Ziv compressed PNG file</b></dt>
+<dd>
+The original image is stored in a PNG-format file.  PNG offers
+lossless compression based on the Lempel-Ziv algorithm for adaptive
+variable-length encoding described in section 22.4.  We'd expect this
+baseline to be very good since adaptive variable-length coding is one
+of the most widely-used compression techniques.
+</dd>
+
+
+<p><dt><b>Experiment 1 -- Huffman-encoding runs</b></dt>
+<dd>
+As a first compression experiment, try using encoding run lengths
+using a Huffman code based on the probability of each possible run
+length.  The experiment prints the 10 most-probable run lengths and
+their probabilities.
+</dd>
+
+<p><dt><b>Experiment 2 -- Huffman-encoding runs by color</b></dt>
+<dd>
+In this experiment, we try using separate Huffman codes
+for white runs and black runs.  The experiment prints the
+10 most-probable run lengths of each color.
+</dd>
+
+<p><dt><b>Experiment 3 -- Huffman-encoding run pairs</b></dt>
+<dd>
+Compression is always improved if you can take advantage
+of patterns in the message.  In our run-length encoded
+image, the simplest pattern is a white run of some length (the
+space between characters) followed by a short black
+run (the black pixels of one row of the character).
+</dd>
+
+<p><dt><b>Experiment 4 -- Huffman-encoding 4x4 image blocks</b></dt>
+<dd>
+In this experiment, the image is split into 4x4 pixel blocks and the
+sixteen pixels in each block are taken to be a 16-bit binary number
+(i.e., a number in the range 0x0000 to 0xFFFF).  A Huffman code is
+used to encode the sequence of 16-bit values. This encoding considers
+the two-dimensional nature of the image, rather than thinking of all
+the pixels as a linear array.
+</dd>
+
+</dl>
+
+<p>The lab questions will ask you analyze the results.
+In each of the experiments, look closely at the top 10 symbols and
+their probabilities.  When you see a small number of symbols that
+account for most of the message (i.e., their probabilities are high),
+that's when you'd expect to get good compression from a Huffman code.
+
+<p>Here's the code for lab10_3.py:
+
+<p><pre class="prettyprint lang-py"><!--#include file="lab10_3.py" --></pre>
+
+<p>There are lab questions associated with this task.
+
+<p><h3>End of Lab #10!</h3>
+<p><h3>Don't forget to submit the on-line lab questions!</h3>
+
+</body></html>
